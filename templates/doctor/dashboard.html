@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Dashboard — MedBook{% endblock %}
+{% block page_title %}Doctor Dashboard{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <!-- Welcome Section -->
+    <div class="page-header">
+        <h1>Welcome, {{ doctor.doctor_name }}</h1>
+        <p>{{ doctor.specialization }} · {{ doctor.department }}</p>
+    </div>
+
+    <!-- Metric Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="metric-card card-blue">
+                <div class="metric-card-icon"><i class="bi bi-calendar-day"></i></div>
+                <div class="metric-card-value">{{ todays_appointments|length }}</div>
+                <div class="metric-card-label">Today's Appointments</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="metric-card card-orange">
+                <div class="metric-card-icon"><i class="bi bi-clock-history"></i></div>
+                <div class="metric-card-value">{{ pending_count }}</div>
+                <div class="metric-card-label">Pending Requests</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="metric-card card-green">
+                <div class="metric-card-icon"><i class="bi bi-people"></i></div>
+                <div class="metric-card-value">{{ total_patients }}</div>
+                <div class="metric-card-label">Patients Seen</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="metric-card card-purple">
+                <div class="metric-card-icon"><i class="bi bi-clipboard2-pulse"></i></div>
+                <div class="metric-card-value">{{ total_prescriptions }}</div>
+                <div class="metric-card-label">Prescriptions</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Schedule -->
+    <div class="card-custom">
+        <div class="card-header">
+            <span><i class="bi bi-calendar3 me-2"></i>Today's Schedule — {{ today.strftime('%A, %d %B %Y') }}</span>
+            <a href="{{ url_for('doctor.schedule') }}" class="btn-outline-custom" style="font-size:12px;padding:4px 12px">
+                View Full Schedule
+            </a>
+        </div>
+        <div class="card-body p-0">
+            {% if todays_appointments %}
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Patient</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in todays_appointments %}
+                        <tr>
+                            <td style="font-weight:600">{{ appt.appointment_time }}</td>
+                            <td>
+                                <div style="font-weight:600">{{ appt.patient.full_name }}</div>
+                                <small style="color:var(--text-muted)">
+                                    {{ appt.patient.age or '—' }} yrs · {{ appt.patient.gender or '—' }}
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge-status badge-{{ appt.status|lower }}">
+                                    {% if appt.status == 'Confirmed' %}<i class="bi bi-check-circle-fill"></i>
+                                    {% elif appt.status == 'Pending' %}<i class="bi bi-clock-fill"></i>
+                                    {% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+                                    {{ appt.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    {% if appt.status == 'Pending' %}
+                                    <form method="POST" action="{{ url_for('doctor.accept_appointment', appointment_id=appt.appointment_id) }}" style="display:inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn-success-custom" style="font-size:11px;padding:4px 10px">
+                                            <i class="bi bi-check-lg"></i> Accept
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('doctor.reject_appointment', appointment_id=appt.appointment_id) }}" style="display:inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn-danger-custom" style="font-size:11px;padding:4px 10px"
+                                                data-confirm="Are you sure you want to reject this appointment?">
+                                            <i class="bi bi-x-lg"></i> Reject
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% if appt.status == 'Confirmed' %}
+                                    <a href="{{ url_for('doctor.write_prescription', appointment_id=appt.appointment_id) }}"
+                                       class="btn-outline-custom" style="font-size:11px;padding:4px 10px">
+                                        <i class="bi bi-pencil-square"></i> Rx
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-calendar-check"></i>
+                <h5>No Appointments Today</h5>
+                <p>You have a free schedule for today.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

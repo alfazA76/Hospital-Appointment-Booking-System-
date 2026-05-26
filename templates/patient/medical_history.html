@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Medical History — MedBook{% endblock %}
+{% block page_title %}Medical History{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <!-- Patient Info Card -->
+    <div class="card-custom mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="user-avatar" style="width:48px;height:48px;font-size:18px">
+                    {{ patient.full_name[0]|upper if patient.full_name else 'P' }}
+                </div>
+                <div>
+                    <h5 style="font-weight:700;color:var(--text-primary);margin-bottom:2px">{{ patient.full_name }}</h5>
+                    <span style="font-size:13px;color:var(--text-muted)">
+                        {% if patient.age %}{{ patient.age }} yrs{% endif %}
+                        {% if patient.gender %} · {{ patient.gender }}{% endif %}
+                        {% if patient.phone %} · {{ patient.phone }}{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments Table -->
+    <div class="card-custom mb-4">
+        <div class="card-header">
+            <span><i class="bi bi-calendar3 me-2"></i>Appointments</span>
+            <a href="{{ url_for('patient.dashboard') }}" class="btn-primary-custom" style="font-size:12px;padding:6px 14px">
+                <i class="bi bi-plus"></i> New Appointment
+            </a>
+        </div>
+        <div class="card-body p-0">
+            {% if appointments %}
+            <div class="table-responsive">
+                <table class="table-custom" id="appointmentsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Doctor</th>
+                            <th>Department</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td style="font-weight:600">{{ appt.doctor.doctor_name }}</td>
+                            <td>{{ appt.doctor.department }}</td>
+                            <td>{{ appt.appointment_date.strftime('%d %b %Y') }}</td>
+                            <td>{{ appt.appointment_time }}</td>
+                            <td>
+                                <span class="badge-status badge-{{ appt.status|lower }}">
+                                    {% if appt.status == 'Confirmed' %}<i class="bi bi-check-circle-fill"></i>
+                                    {% elif appt.status == 'Pending' %}<i class="bi bi-clock-fill"></i>
+                                    {% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+                                    {{ appt.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-calendar-x"></i>
+                <h5>No Appointments Yet</h5>
+                <p>Book your first appointment from the dashboard.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Prescriptions Table -->
+    <div class="card-custom">
+        <div class="card-header">
+            <span><i class="bi bi-clipboard2-pulse me-2"></i>Prescriptions</span>
+        </div>
+        <div class="card-body p-0">
+            {% if prescriptions %}
+            <div class="table-responsive">
+                <table class="table-custom" id="prescriptionsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Doctor</th>
+                            <th>Date</th>
+                            <th>Medicines</th>
+                            <th>Remarks</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rx in prescriptions %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td style="font-weight:600">{{ rx.doctor.doctor_name }}</td>
+                            <td>{{ rx.date.strftime('%d %b %Y') }}</td>
+                            <td style="max-width:200px">{{ rx.medicines[:80] }}{{ '...' if rx.medicines|length > 80 }}</td>
+                            <td style="max-width:150px">{{ rx.remarks[:50] if rx.remarks else '—' }}{{ '...' if rx.remarks and rx.remarks|length > 50 }}</td>
+                            <td>
+                                <a href="{{ url_for('patient.download_prescription', prescription_id=rx.prescription_id) }}"
+                                   class="btn-outline-custom" style="font-size:12px;padding:4px 12px" target="_blank">
+                                    <i class="bi bi-download"></i> PDF
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-clipboard2"></i>
+                <h5>No Prescriptions</h5>
+                <p>Prescriptions from your doctors will appear here.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

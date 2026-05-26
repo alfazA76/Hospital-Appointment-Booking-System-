@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Write Prescription — MedBook{% endblock %}
+{% block page_title %}Write Prescription{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="row g-4">
+        <!-- Patient Info -->
+        <div class="col-lg-4">
+            <div class="card-custom">
+                <div class="card-header">
+                    <span><i class="bi bi-person me-2"></i>Patient Info</span>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="user-avatar mx-auto" style="width:56px;height:56px;font-size:22px">
+                            {{ patient.full_name[0]|upper if patient.full_name else 'P' }}
+                        </div>
+                    </div>
+                    <table style="width:100%;font-size:13px">
+                        <tr>
+                            <td style="padding:6px 0;color:var(--text-muted);font-weight:600">Name</td>
+                            <td style="padding:6px 0;color:var(--text-primary);text-align:right">{{ patient.full_name }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px 0;color:var(--text-muted);font-weight:600">Age</td>
+                            <td style="padding:6px 0;color:var(--text-primary);text-align:right">{{ patient.age or '—' }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px 0;color:var(--text-muted);font-weight:600">Gender</td>
+                            <td style="padding:6px 0;color:var(--text-primary);text-align:right">{{ patient.gender or '—' }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px 0;color:var(--text-muted);font-weight:600">Contact</td>
+                            <td style="padding:6px 0;color:var(--text-primary);text-align:right">{{ patient.phone or patient.email }}</td>
+                        </tr>
+                    </table>
+
+                    <hr style="border-color:var(--border-color);margin:16px 0">
+
+                    <table style="width:100%;font-size:13px">
+                        <tr>
+                            <td style="padding:6px 0;color:var(--text-muted);font-weight:600">Appt. Date</td>
+                            <td style="padding:6px 0;color:var(--text-primary);text-align:right">{{ appointment.appointment_date.strftime('%d %b %Y') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px 0;color:var(--text-muted);font-weight:600">Time</td>
+                            <td style="padding:6px 0;color:var(--text-primary);text-align:right">{{ appointment.appointment_time }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px 0;color:var(--text-muted);font-weight:600">Status</td>
+                            <td style="padding:6px 0;text-align:right">
+                                <span class="badge-status badge-{{ appointment.status|lower }}">{{ appointment.status }}</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prescription Form -->
+        <div class="col-lg-8">
+            <div class="card-custom">
+                <div class="card-header">
+                    <span><i class="bi bi-clipboard2-pulse me-2"></i>
+                        {{ 'Update Prescription' if existing else 'New Prescription' }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('doctor.write_prescription', appointment_id=appointment.appointment_id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="mb-4">
+                            <label for="medicines" class="form-label-custom">
+                                Medicines <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control form-control-custom" id="medicines" name="medicines"
+                                      rows="6" required
+                                      placeholder="Enter medicines with dosage instructions, one per line.&#10;&#10;Example:&#10;1. Paracetamol 500mg — 1 tablet, 3 times/day, after meals&#10;2. Amoxicillin 250mg — 1 capsule, 2 times/day, for 5 days">{{ existing.medicines if existing else '' }}</textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="remarks" class="form-label-custom">Remarks / Instructions</label>
+                            <textarea class="form-control form-control-custom" id="remarks" name="remarks"
+                                      rows="3"
+                                      placeholder="Additional notes, dietary advice, follow-up instructions...">{{ existing.remarks if existing else '' }}</textarea>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn-primary-custom" style="padding:12px 28px">
+                                <i class="bi bi-check-circle"></i>
+                                {{ 'Update Prescription' if existing else 'Save Prescription' }}
+                            </button>
+                            <a href="{{ url_for('doctor.schedule') }}" class="btn-outline-custom" style="padding:12px 28px">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

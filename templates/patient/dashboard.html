@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Dashboard — MedBook{% endblock %}
+{% block page_title %}Find a Doctor{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <!-- Search & Filter Bar -->
+    <div class="card-custom mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('patient.dashboard') }}" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="search" class="form-label-custom">Search Doctors</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background:var(--bg-input);border:1.5px solid var(--border-color);border-right:none;color:var(--text-muted)">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control form-control-custom" id="search" name="search"
+                               placeholder="Search by name or specialization..." value="{{ search }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="department" class="form-label-custom">Department</label>
+                    <select class="form-select form-select-custom" id="department" name="department">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept }}" {{ 'selected' if dept == selected_department }}>{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn-primary-custom w-100 justify-content-center">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Doctor Cards Grid -->
+    {% if doctors %}
+    <div class="row g-4">
+        {% for doctor in doctors %}
+        <div class="col-md-6 col-lg-4 doctor-card-wrapper">
+            <div class="doctor-card">
+                <div class="doctor-card-avatar">
+                    {{ doctor.doctor_name.split(' ')[-1][0] if doctor.doctor_name else 'D' }}
+                </div>
+                <h5>{{ doctor.doctor_name }}</h5>
+                <div class="specialization">
+                    <i class="bi bi-award"></i> {{ doctor.specialization }}
+                </div>
+                <div class="department mb-2">
+                    <i class="bi bi-building"></i> {{ doctor.department }}
+                </div>
+                {% if doctor.contact %}
+                <div class="department mb-3">
+                    <i class="bi bi-telephone"></i> {{ doctor.contact }}
+                </div>
+                {% endif %}
+                <a href="{{ url_for('patient.book_appointment', doctor_id=doctor.doctor_id) }}"
+                   class="btn-primary-custom w-100 justify-content-center" style="font-size:13px;padding:8px 16px">
+                    <i class="bi bi-calendar-plus"></i> Book Appointment
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card-custom">
+        <div class="empty-state">
+            <i class="bi bi-search"></i>
+            <h5>No Doctors Found</h5>
+            <p>Try adjusting your search or filter criteria.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

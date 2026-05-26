@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Doctors — MedBook{% endblock %}
+{% block page_title %}Manage Doctors{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h1 style="font-size:22px;font-weight:700;color:var(--text-primary)">Doctor Directory</h1>
+            <p style="font-size:14px;color:var(--text-muted)">{{ doctors|length }} doctor{{ 's' if doctors|length != 1 }} registered</p>
+        </div>
+        <a href="{{ url_for('admin.add_doctor') }}" class="btn-primary-custom">
+            <i class="bi bi-person-plus"></i> Add New Doctor
+        </a>
+    </div>
+
+    {% if doctors %}
+    <div class="card-custom">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table-custom" id="doctorsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Doctor Name</th>
+                            <th>Specialization</th>
+                            <th>Department</th>
+                            <th>Contact</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in doctors %}
+                        <tr>
+                            <td style="font-weight:600">#{{ doc.doctor_id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar" style="width:32px;height:32px;font-size:13px;flex-shrink:0">
+                                        {{ doc.doctor_name.split(' ')[-1][0] if doc.doctor_name else 'D' }}
+                                    </div>
+                                    <span style="font-weight:600">{{ doc.doctor_name }}</span>
+                                </div>
+                            </td>
+                            <td>{{ doc.specialization }}</td>
+                            <td>{{ doc.department }}</td>
+                            <td>{{ doc.contact or '—' }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('admin.edit_doctor', doctor_id=doc.doctor_id) }}"
+                                       class="btn-outline-custom" style="font-size:11px;padding:4px 10px">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <form method="POST" action="{{ url_for('admin.delete_doctor', doctor_id=doc.doctor_id) }}" style="display:inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn-danger-custom" style="font-size:11px;padding:4px 10px"
+                                                data-confirm="Are you sure you want to remove Dr. {{ doc.doctor_name }}? This will also delete all their appointments.">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card-custom">
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <h5>No Doctors Registered</h5>
+            <p>Add your first doctor to get started.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

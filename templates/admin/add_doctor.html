@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Add Doctor — MedBook{% endblock %}
+{% block page_title %}Add New Doctor{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card-custom">
+                <div class="card-header">
+                    <span><i class="bi bi-person-plus me-2"></i>Doctor Registration Form</span>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.add_doctor') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="doctor_name" class="form-label-custom">Doctor Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-custom" id="doctor_name" name="doctor_name"
+                                       placeholder="e.g. Dr. John Smith" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label-custom">Login Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control form-control-custom" id="email" name="email"
+                                       placeholder="doctor@hospital.com" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="specialization" class="form-label-custom">Specialization <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-custom" id="specialization" name="specialization"
+                                       placeholder="e.g. Cardiologist" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="department" class="form-label-custom">Department <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-custom" id="department" name="department"
+                                       placeholder="e.g. Cardiology" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="contact" class="form-label-custom">Contact Number</label>
+                                <input type="tel" class="form-control form-control-custom" id="contact" name="contact"
+                                       placeholder="e.g. 9876543210">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label-custom">Login Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control form-control-custom" id="password" name="password"
+                                       placeholder="Min 6 characters" required minlength="6">
+                            </div>
+                        </div>
+
+                        <!-- Availability Section -->
+                        <hr style="border-color:var(--border-color);margin:20px 0">
+                        <h6 style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:16px">
+                            <i class="bi bi-clock me-2"></i>Weekly Availability (Time Slots)
+                        </h6>
+                        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+                            Enter time slots separated by commas (e.g., 09:00, 09:30, 10:00, 10:30). Leave blank for days off.
+                        </p>
+
+                        <div class="row">
+                            {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] %}
+                            <div class="col-md-6 mb-3">
+                                <label for="slots_{{ day }}" class="form-label-custom">{{ day }}day</label>
+                                <input type="text" class="form-control form-control-custom" id="slots_{{ day }}" name="slots_{{ day }}"
+                                       placeholder="09:00, 09:30, 10:00, 10:30, 11:00">
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex gap-3 mt-3">
+                            <button type="submit" class="btn-primary-custom" style="padding:12px 28px">
+                                <i class="bi bi-check-circle"></i> Add Doctor
+                            </button>
+                            <a href="{{ url_for('admin.manage_doctors') }}" class="btn-outline-custom" style="padding:12px 28px">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

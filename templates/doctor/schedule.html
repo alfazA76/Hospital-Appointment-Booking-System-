@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule — MedBook{% endblock %}
+{% block page_title %}Appointment Schedule{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <!-- Date Filter -->
+    <div class="card-custom mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('doctor.schedule') }}" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="date" class="form-label-custom">Select Date</label>
+                    <input type="date" class="form-control form-control-custom" id="date" name="date"
+                           value="{{ filter_date.strftime('%Y-%m-%d') }}">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn-primary-custom w-100 justify-content-center">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ url_for('doctor.schedule') }}" class="btn-outline-custom w-100 justify-content-center">
+                        <i class="bi bi-arrow-counterclockwise"></i> Today
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Schedule Header -->
+    <div class="page-header">
+        <h1>{{ filter_date.strftime('%A, %d %B %Y') }}</h1>
+        <p>{{ appointments|length }} appointment{{ 's' if appointments|length != 1 }} scheduled</p>
+    </div>
+
+    <!-- Appointments List -->
+    <div class="card-custom">
+        <div class="card-body p-0">
+            {% if appointments %}
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Patient Name</th>
+                            <th>Age/Gender</th>
+                            <th>Contact</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr>
+                            <td style="font-weight:700;color:var(--primary)">{{ appt.appointment_time }}</td>
+                            <td style="font-weight:600">{{ appt.patient.full_name }}</td>
+                            <td>{{ appt.patient.age or '—' }} / {{ appt.patient.gender or '—' }}</td>
+                            <td>{{ appt.patient.phone or appt.patient.email }}</td>
+                            <td>
+                                <span class="badge-status badge-{{ appt.status|lower }}">
+                                    {% if appt.status == 'Confirmed' %}<i class="bi bi-check-circle-fill"></i>
+                                    {% elif appt.status == 'Pending' %}<i class="bi bi-clock-fill"></i>
+                                    {% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+                                    {{ appt.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    {% if appt.status == 'Pending' %}
+                                    <form method="POST" action="{{ url_for('doctor.accept_appointment', appointment_id=appt.appointment_id) }}" style="display:inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn-success-custom" style="font-size:11px;padding:4px 10px">
+                                            <i class="bi bi-check-lg"></i> Accept
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('doctor.reject_appointment', appointment_id=appt.appointment_id) }}" style="display:inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn-danger-custom" style="font-size:11px;padding:4px 10px"
+                                                data-confirm="Are you sure you want to reject this appointment?">
+                                            <i class="bi bi-x-lg"></i> Reject
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% if appt.status != 'Cancelled' %}
+                                    <a href="{{ url_for('doctor.write_prescription', appointment_id=appt.appointment_id) }}"
+                                       class="btn-outline-custom" style="font-size:11px;padding:4px 10px">
+                                        <i class="bi bi-pencil-square"></i> Prescription
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-calendar-x"></i>
+                <h5>No Appointments</h5>
+                <p>No appointments scheduled for this date.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

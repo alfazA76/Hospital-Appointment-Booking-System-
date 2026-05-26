@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription — MedBook</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            color: #1e293b;
+            padding: 40px;
+        }
+
+        .prescription-container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 2px solid #1a3b6e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .prescription-header {
+            background: linear-gradient(135deg, #1a3b6e, #2a5298);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .prescription-header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .prescription-header p {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .prescription-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .info-group {
+            min-width: 200px;
+        }
+
+        .info-group label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .info-group span {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .prescription-body {
+            padding: 30px;
+        }
+
+        .rx-symbol {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a3b6e;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .medicines-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #1e293b;
+            margin-bottom: 24px;
+            white-space: pre-wrap;
+        }
+
+        .remarks-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #4a5568;
+            white-space: pre-wrap;
+        }
+
+        .prescription-footer {
+            padding: 20px 30px;
+            border-top: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #1e293b;
+            padding-top: 8px;
+            min-width: 200px;
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .print-btn {
+            background: #1a3b6e;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 20px auto 0;
+        }
+
+        .print-btn:hover {
+            background: #2a5298;
+        }
+
+        @media print {
+            body { padding: 20px; }
+            .print-btn { display: none !important; }
+            .prescription-container { border: 1px solid #333; }
+        }
+    </style>
+</head>
+<body>
+    <div class="prescription-container">
+        <div class="prescription-header">
+            <h1>🏥 MedBook Healthcare</h1>
+            <p>Hospital Appointment Booking System — Digital Prescription</p>
+        </div>
+
+        <div class="prescription-info">
+            <div class="info-group">
+                <label>Patient Name</label>
+                <span>{{ patient.full_name }}</span>
+            </div>
+            <div class="info-group">
+                <label>Age / Gender</label>
+                <span>{{ patient.age or '—' }} yrs / {{ patient.gender or '—' }}</span>
+            </div>
+            <div class="info-group">
+                <label>Date</label>
+                <span>{{ prescription.date.strftime('%d %B %Y') }}</span>
+            </div>
+            <div class="info-group">
+                <label>Prescribing Doctor</label>
+                <span>{{ doctor.doctor_name if doctor else '—' }}</span>
+            </div>
+            <div class="info-group">
+                <label>Specialization</label>
+                <span>{{ doctor.specialization if doctor else '—' }}</span>
+            </div>
+            <div class="info-group">
+                <label>Prescription ID</label>
+                <span>#RX-{{ '%04d'|format(prescription.prescription_id) }}</span>
+            </div>
+        </div>
+
+        <div class="prescription-body">
+            <div class="rx-symbol">℞</div>
+
+            <div class="section-title">Medicines</div>
+            <div class="medicines-content">{{ prescription.medicines }}</div>
+
+            {% if prescription.remarks %}
+            <div class="section-title">Remarks / Instructions</div>
+            <div class="remarks-content">{{ prescription.remarks }}</div>
+            {% endif %}
+        </div>
+
+        <div class="prescription-footer">
+            <div>
+                <div style="font-size:12px;color:#64748b">This is a computer-generated prescription.</div>
+                <div style="font-size:12px;color:#64748b">Generated by MedBook Healthcare System</div>
+            </div>
+            <div class="signature-line">
+                {{ doctor.doctor_name if doctor else 'Doctor' }}<br>
+                <small>Authorized Signature</small>
+            </div>
+        </div>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">
+        🖨️ Print / Save as PDF
+    </button>
+</body>
+</html>

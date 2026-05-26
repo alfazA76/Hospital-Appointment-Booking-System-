@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard — MedBook{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="page-header">
+        <h1>System Overview</h1>
+        <p>Real-time metrics and system health</p>
+    </div>
+
+    <!-- Metric Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="metric-card card-blue">
+                <div class="metric-card-icon"><i class="bi bi-people"></i></div>
+                <div class="metric-card-value">{{ total_patients }}</div>
+                <div class="metric-card-label">Total Patients</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="metric-card card-green">
+                <div class="metric-card-icon"><i class="bi bi-person-badge"></i></div>
+                <div class="metric-card-value">{{ active_doctors }}</div>
+                <div class="metric-card-label">Active Doctors</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="metric-card card-purple">
+                <div class="metric-card-icon"><i class="bi bi-calendar3"></i></div>
+                <div class="metric-card-value">{{ total_appointments }}</div>
+                <div class="metric-card-label">Total Appointments</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Status Breakdown -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="metric-card card-orange">
+                <div class="metric-card-icon"><i class="bi bi-clock-history"></i></div>
+                <div class="metric-card-value">{{ pending_appointments }}</div>
+                <div class="metric-card-label">Pending</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-card card-cyan">
+                <div class="metric-card-icon"><i class="bi bi-check-circle"></i></div>
+                <div class="metric-card-value">{{ confirmed_appointments }}</div>
+                <div class="metric-card-label">Confirmed</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-card card-red">
+                <div class="metric-card-icon"><i class="bi bi-x-circle"></i></div>
+                <div class="metric-card-value">{{ cancelled_appointments }}</div>
+                <div class="metric-card-label">Cancelled</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Appointments -->
+    <div class="card-custom">
+        <div class="card-header">
+            <span><i class="bi bi-clock-history me-2"></i>Recent Appointments</span>
+            <a href="{{ url_for('admin.manage_doctors') }}" class="btn-outline-custom" style="font-size:12px;padding:4px 12px">
+                Manage Doctors
+            </a>
+        </div>
+        <div class="card-body p-0">
+            {% if recent_appointments %}
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in recent_appointments %}
+                        <tr>
+                            <td style="font-weight:600">#{{ appt.appointment_id }}</td>
+                            <td>{{ appt.patient.full_name }}</td>
+                            <td>{{ appt.doctor.doctor_name }}</td>
+                            <td>{{ appt.appointment_date.strftime('%d %b %Y') }}</td>
+                            <td>{{ appt.appointment_time }}</td>
+                            <td>
+                                <span class="badge-status badge-{{ appt.status|lower }}">
+                                    {% if appt.status == 'Confirmed' %}<i class="bi bi-check-circle-fill"></i>
+                                    {% elif appt.status == 'Pending' %}<i class="bi bi-clock-fill"></i>
+                                    {% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+                                    {{ appt.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-calendar3"></i>
+                <h5>No Appointments Yet</h5>
+                <p>Appointments will appear here once patients begin booking.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
